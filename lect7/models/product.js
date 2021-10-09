@@ -9,6 +9,7 @@ const p=path.join(
 );
 
 const getProductsFromFile = (cb)=>{
+    console.log("IN ERROR SECTION1");
     fs.readFile(p,(err,fileContent)=>{
         if(err){
             cb([]);
