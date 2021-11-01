@@ -18,5 +18,8 @@ router.get("/products",adminController.getProducts);
 //? post() is same as use but it will only work with POST request AND pst() perform EXACT MATHCING of routes unlike use
 router.post("/add-product",adminController.postAddProduct);
 
+router.get('/edit-product/:productId', adminController.getEditProduct);
+
+router.post('/edit-product', adminController.postEditProduct);
 // module.exports=router;
 exports.routes=router;
