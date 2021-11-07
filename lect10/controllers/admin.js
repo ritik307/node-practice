@@ -1,5 +1,5 @@
-const { devNull } = require("os");
 const Product = require("../models/product");
+
 exports.getAddProduct = (req, res, next) => {
   console.log("--------getAddProuct------");
   res.render("admin/edit-product", {
@@ -14,7 +14,7 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(null, imageUrl, description, price);
+  const product = new Product(null, title, imageUrl, description, price);
   product.save()
     .then(() => {
       res.redirect("/");
