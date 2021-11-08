@@ -14,18 +14,22 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  Product.create({
-    title: title,
-    price: price,
-    imageUrl: imageUrl,
-    description: description,
-  })
-  .then(result =>{
-    console.log("Product created successfully");
-  })
-  .catch((err)=>{
-    console.log(err);
-  })
+  //? creatProduct() is a special method sequelize add depending on the associations we have defined as belongsTo has
+  //? many asscoiation so sequelize added mathod that allow us to create new associaited methods
+  req.user
+    .createProduct({
+      title: title,
+      price: price,
+      imageUrl: imageUrl,
+      description: description,
+    })
+    .then(result => {
+      console.log("PRODUCT CREATED SUCCESSFULLY");
+      res.redirect("/admin/products");
+    })
+    .catch((err)=>{
+      console.log("ERROR WHILE CREATING NEW PRODUCT");
+    });
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -34,17 +38,24 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect("/");
   }
   const prodId = req.params.productId;
-  Product.findById(prodId, (product) => {
-    if (!product) {
-      return res.redirect("/");
-    }
-    res.render("admin/edit-product", {
-      pageTitle: "Edit Product",
-      path: "/admin/edit-product",
-      editing: editMode,
-      product: product,
+  req.user
+    .getProducts({ where: { id: prodId } })
+    .then(products => {
+      const product = products[0];
+      if (!product) {
+        return res.redirect("/");
+      }
+      res.render('admin/edit-product', {
+        pageTitle: 'Edit Product',
+        path: '/admin/edit-product',
+        editing: editMode,
+        product: product
+      });
+    })
+    .catch((err)=>{
+      console.log("ERROR WHILE EDITING THE PRODUCT");
     });
-  });
+
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -53,28 +64,57 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  const updatedProduct = new Product(
-    prodId,
-    updatedTitle,
-    updatedImageUrl,
-    updatedDesc,
-    updatedPrice
-  );
-  updatedProduct.save();
-  res.redirect("/admin/products");
+  Product.findByPk(prodId)
+    .then(product =>{
+      //? the below will only change the data locally
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.description = updatedDesc;
+      product.imageUrl = updatedImageUrl;
+      //? below code will update the data to the database
+      //? to not start a callback hell type situtation we are returning the product.save promise and hadle it in the same .then() of the parent promise 
+      //? 
+      return product.save();
+    })
+    .then(result=>{
+      console.log("PRODUCT UPDATED SUCCESSFULLY");
+      res.redirect("/admin/products");
+    })
+    //? the catch() will catch the errors for both findByPk() and save()
+    .catch(err=>{
+      console.log("ERROR WHILE UPDATING PRODUCT");
+    })
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll((products) => {
-    res.render("admin/products", {
-      prods: products,
-      pageTitle: "Admin Products",
-      path: "/admin/products",
-    });
-  });
+  req.user
+    .getProducts()
+    .then(products => {
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "Admin Products",
+        path: "/admin/products",
+      });
+    })
+    .catch((err)=>{
+      console.log("ERROR WHILE FETCHING PRODUCTS");
+    })
 };
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId);
-  res.redirect("/admin/products");
+  //? here we can also directly call the delete() method of the product model by providing where clause
+  Product.findByPk(prodId)
+    .then(product=>{
+      console.log("PRODUCT IS : ");
+      console.log(product);
+      return product.destroy();
+    })
+    .then(result=>{
+      console.log("PRODUCT DESTROYED SUCCESSFULLY");
+      res.redirect("/admin/products");
+    })
+    .catch(err=>{
+      console.log("ERROR WHILE DELETING PRODUCT");
+      console.log(err);
+    })
 };
