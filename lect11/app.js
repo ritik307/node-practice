@@ -11,6 +11,8 @@ const errorController = require('./controllers/error');
 const sequelize = require('./util/database');
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 const app=express();
 
@@ -64,11 +66,22 @@ Product.belongsTo(User,{constraints:true,onDelete:'CASCADE'});
 //? Blow is same as the above line.
 User.hasMany(Product);
 //? Now the sequelize will not only create tables for our models but also create the associations[define relations between models]
+//?---------------------------------------------------------------------------------------------------------------------
+//? ONE TO ONE RELATIONSHIP
+User.hasOne(Cart);
+Cart.belongsTo(User);
+//?---------------------------------------------------------------------------------------------------------------------
+//? MANY TO MANY RELATIONSHIP
+//? through => tell sequelize where these conections should be stored ie "CartItem" model
+Cart.belongsToMany(Product,{through:CartItem});
+Product.belongsToMany(Cart,{through:CartItem});
+
+
 
 //? sync is a method of sequelize that will create the table IF NOT EXIST in the db
 //? it syncs your model in the db by the appropriate tables
 //? sync({force:true}) - will drop the table and recreate it.
-sequelize.sync()
+sequelize.sync({force:true})
     .then((result)=>{
         //? creating new dummy user if it dosent exist alreay
         return User.findByPk(1);
@@ -84,12 +97,15 @@ sequelize.sync()
         return user;
     })
     .then(user=>{
+        return user.createCart();
+    })
+    .then(cart=>{
         app.listen(3000,()=>{
             console.log("server is booting");
         })
     })
     .catch((err)=>{
-        console.log(err);
+        console.log("ERROR WHILE CREATING USER/CART");
     })
 
 
