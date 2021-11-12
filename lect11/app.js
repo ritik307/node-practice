@@ -13,6 +13,8 @@ const Product = require('./models/product');
 const User = require('./models/user');
 const Cart = require('./models/cart');
 const CartItem = require('./models/cart-item');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 const app=express();
 
@@ -75,13 +77,17 @@ Cart.belongsTo(User);
 //? through => tell sequelize where these conections should be stored ie "CartItem" model
 Cart.belongsToMany(Product,{through:CartItem});
 Product.belongsToMany(Cart,{through:CartItem});
+//?
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
 
 
 
 //? sync is a method of sequelize that will create the table IF NOT EXIST in the db
 //? it syncs your model in the db by the appropriate tables
 //? sync({force:true}) - will drop the table and recreate it.
-sequelize.sync({force:true})
+sequelize.sync()
     .then((result)=>{
         //? creating new dummy user if it dosent exist alreay
         return User.findByPk(1);
