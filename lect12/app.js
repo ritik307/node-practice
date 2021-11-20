@@ -9,6 +9,7 @@ const bodyParser = require("body-parser");
 
 const errorController = require('./controllers/error');
 const mongoConnect = require("./util/database").mongoConnect;
+const User = require("./models/user");
 
 const app=express();
 
@@ -31,18 +32,14 @@ app.use(express.static(path.join(__dirname,"public"))); //? for static imports(O
 //? NOTE: - app.use will only execute for incoming requests.It will not execture before sequelize.sync() as npm start runs 
 //? sequalize.sync() not the incoming request.Incoming request are funnled through middleware.
 app.use((req,res,next)=>{
-    // User.findByPk(1)
-    // .then(user=>{
-    //     //?adding a new field to our existing req object
-    //     //? the user here is not just a JS object but it is a sequelize object with values stored in the database and with all the 
-    //     //? utility methods like destroy(). So now when we call the req.user in our app we can also execute method like destroy(). 
-    //     req.user=user;
-    //     next();
-    // })
-    // .catch(err=>{
-    //     console.log("error while adding user to req");
-    // });
-    next();
+    User.findById("6198fedbfb34ee48f4fbddb0")
+    .then(user=>{
+        req.user=user;
+        next();
+    })
+    .catch((err)=>{
+        console.log("ERROR WHILE FINDING THE USER");
+    })
 })
 
 
