@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname,"public"))); //? for static imports(O
 app.use((req,res,next)=>{
     User.findById("6198fedbfb34ee48f4fbddb0")
     .then(user=>{
-        req.user=user;
+        req.user=new User(user.name,user.email,user.cart,user._id);
         next();
     })
     .catch((err)=>{
@@ -51,12 +51,7 @@ app.use(errorController.get404);
 
 mongoConnect(()=>{
     app.listen(3000)
-        // .then(()=>{
-        //     console.log("SERVER CONNECTED SUCCESSFULLY");
-        // })
-        // .catch((err)=>{
-        //     console.log("ERROR WHILE STARTING THE DB");
-        // });
+       
 });
 
 
