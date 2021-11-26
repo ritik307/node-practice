@@ -77,7 +77,8 @@ exports.postCart = (req,res,next)=>{
       return req.user.addToCart(product);
     })
     .then((result)=>{
-      console.log("ERROR WHILE ADDING TO CART");
+      console.log("Product added successfully");
+      res.redirect('/cart');
     })
 }
 

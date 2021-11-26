@@ -34,6 +34,7 @@ app.use(express.static(path.join(__dirname,"public"))); //? for static imports(O
 app.use((req,res,next)=>{
     User.findById("6198fedbfb34ee48f4fbddb0")
     .then(user=>{
+        //? creating a new User object from "Model" so that we can use its function in our app.
         req.user=new User(user.name,user.email,user.cart,user._id);
         next();
     })
