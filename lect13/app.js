@@ -1,4 +1,4 @@
-//! LECTURE 12
+//! LECTURE 13
 
 const path=require("path");
 
@@ -6,9 +6,9 @@ const express = require("express"); //returns a function
 //? body-parser is used to parse the incoming request body to fetch data from it bcz req doesnt try to
 //? parse the body by default. 
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const errorController = require('./controllers/error');
-const mongoConnect = require("./util/database").mongoConnect;
 const User = require("./models/user");
 
 const app=express();
@@ -32,10 +32,10 @@ app.use(express.static(path.join(__dirname,"public"))); //? for static imports(O
 //? NOTE: - app.use will only execute for incoming requests.It will not execture before sequelize.sync() as npm start runs 
 //? sequalize.sync() not the incoming request.Incoming request are funnled through middleware.
 app.use((req,res,next)=>{
-    User.findById("6198fedbfb34ee48f4fbddb0")
+    User.findById("61a77038026b637f2ec12aab")
     .then(user=>{
         //? creating a new User object from "Model" so that we can use its function in our app.
-        req.user=new User(user.name,user.email,user.cart,user._id);
+        req.user=user;
         next();
     })
     .catch((err)=>{
@@ -48,12 +48,28 @@ app.use('/admin',adminData.routes);
 app.use(shopRoutes);
 
 //? middleware to catch any route that doesnt match the above routes 
-app.use(errorController.get404);
+// app.use(errorController.get404);
 
-mongoConnect(()=>{
-    app.listen(3000)
-       
-});
+
+mongoose.connect("mongodb+srv://ritik307:ritik307@nodepractice.mxrgy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    .then(result=>{
+        User.findOne().then(user=>{
+            if(!user){
+                const user=new User({
+                    name:"ritik",
+                    email:"ritikpr307@gmail.com",
+                    cart:{
+                        items:[]
+                    }
+                });
+                user.save();
+            }
+        });
+        app.listen(3000,()=>console.log("Server running"));
+    })
+    .catch((err)=>{
+        console.log("ERROR WHILE CONNECTING TO THE DATABASE");
+    });
 
 
 /* //? Vanilla Nodejs way of making server

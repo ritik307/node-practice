@@ -14,7 +14,7 @@ const shopRoutes=require("./routes/shop");
 
 //? use("/path",(req,res,next)=>{}) - allow us to add a new middleware func.
 //? next()- is a funcn passed by expressJS to travel to another middleware
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: false})); //? we didnt use next() here bcz the function"urlencoded()" itself is calling the next() inside it
 app.use(express.static(path.join(__dirname,"public"))); //for static imports like css from a folder i.e. public(could name anything)
 
 app.use('/admin',adminRoutes);
