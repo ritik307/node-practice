@@ -85,6 +85,8 @@ exports.postEditProduct = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
   //? providing nothing inside find() will return all the products
   Product.find()
+    //? .select()("title price -_id") => will return only the title and price and eleminate id from the result
+    //? .populate('userId') => will populate the userId from the product table with the data of that perticular user
     .then(products => {
       res.render("admin/products", {
         prods: products,
