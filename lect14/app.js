@@ -20,7 +20,7 @@ app.set("views","views"); //? in which folser should express look for views.
 
 const adminData=require("./routes/admin");
 const shopRoutes=require("./routes/shop");
-
+const authRoutes=require("./routes/auth");
 
 //? use("/path",(req,res,next)=>{}) - allow us to add a new middleware func.
 //? next()- is a funcn passed by expressJS to travel to another middleware
@@ -46,7 +46,7 @@ app.use((req,res,next)=>{
 
 app.use('/admin',adminData.routes);
 app.use(shopRoutes);
-
+app.use(authRoutes);
 //? middleware to catch any route that doesnt match the above routes 
 // app.use(errorController.get404);
 
