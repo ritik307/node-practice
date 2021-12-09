@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs"); //? used to hash password before saving it in the database
 const User = require("../models/user");
 
 exports.getLogin = (req, res, next) => {
@@ -6,9 +7,18 @@ exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: req.session.isLoggedIn,
+    // isAuthenticated: req.session.isLoggedIn,
   });
 };
+
+exports.getSignup = (req, res, next) => {
+  res.render("auth/signup", {
+    path: "/signup",
+    pageTitle: "Signup",
+    isAuthenticated: false,
+  });
+};
+
 
 exports.postLogin = (req, res, next) => {
   {
@@ -31,24 +41,66 @@ exports.postLogin = (req, res, next) => {
     //? now your client side JS where some colud enject malicious code cant read the cookie values
     //! res.setHeader('Set-Cookie', 'isLoggedIn=true; HttpOnly;');
   }
-
+  const email = req.body.email;
+  const password = req.body.password;
+  User.findOne({emaik:email}).then((user)=>{
+    if(!user){
+      return res.redirect("/login");
+    }
+    bcrypt.compare(password,user.password)
+      .then((doMatch)=>{
+        if(doMatch){
+          //? creating a new User object from "Model" so that we can use its function in our app.
+          req.session.user = user;
+          //? making session cookie for the user req.session.__anyname__=value
+          req.session.isLoggedIn = true;
+          //? req.session.save() : as the data takes time to update in MongoDb session so there may arise a
+          //? situation when the page is rendered BUT the data isnt updated as page render indepedent of MongoDb session
+          //? so we have to use req.session.save() to update the data in MongoDb session AND then fire the redirect command   
+          return req.session.save((err) => {
+            console.log("SESSION SAVED SUCCESSFULLY");
+            res.redirect("/");
+          });
+        }
+        res.redirect("/login");
+      })
+  })
   User.findById("61a77038026b637f2ec12aab")
     .then((user) => {
-      //? creating a new User object from "Model" so that we can use its function in our app.
-      req.session.user = user;
-      //? making session cookie for the user req.session.__anyname__=value
-      req.session.isLoggedIn = true;
-      //? req.session.save() : as the data takes time to update in MongoDb session so there may arise a
-      //? situation when the page is rendered BUT the data isnt updated as page render indepedent of MongoDb session
-      //? so we have to use req.session.save() to update the data in MongoDb session AND then fire the redirect command   
-      req.session.save((err) => {
-        res.redirect("/");
-      });
+      
     })
     .catch((err) => {
       console.log("ERROR WHILE FINDING THE USER");
     });
 };
+
+exports.postSignup = (req, res, next) => {
+  const email=req.body.email;
+  const password=req.body.password;
+  const confirmPassword=req.body.confirmPassword;
+  User.findOne({email:email})
+    .then((userDoc)=>{
+      if(userDoc){
+        return res.redirect("/signup");
+      }
+      return bcrypt.hash(password,12)//? hashed password cant be dcrypted by anyone not even by bcrypt itself
+        .then((hashedPassword)=>{
+          const user=new User({
+            email:email,
+            password:hashedPassword,
+            cart:{items:[]}
+          });
+          return user.save();
+        })
+        .then((results)=>{
+          res.redirect("/login");
+        })
+    })
+    .catch((err)=>{
+      console.log("ERROR WHILE SIGNING THE USER");
+    })
+};
+
 exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
     console.log(err);

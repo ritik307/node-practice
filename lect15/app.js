@@ -1,4 +1,4 @@
-//! LECTURE 14
+//! LECTURE 15
 
 const path = require("path");
 
@@ -9,6 +9,9 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session"); //? package to handle session
 const MongoDBStore = require("connect-mongodb-session")(session); //? package to store your session in mongodb
+
+const csrf=require("csurf"); //? package to handle csrf(Cross-Site Request Forgery)
+
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
@@ -19,6 +22,9 @@ const store = new MongoDBStore({
     uri: MONGODB_URI,
     collection: "sessions", //? collection name where the session is stored in DB
 });
+
+//? Initialising csrfProtection middleware
+const csrfProtection = csrf();
 
 //? registering VIEW ENGINE
 //? "view engine" is a reserved configuration key understood by expressjs
@@ -51,6 +57,10 @@ app.use(
   })
 );
 
+//? ALWAYING USE CSRF POTECTION MIDDLEWARE AFTER INITIALIZING SESSION
+//? for any NON-GET request this package will look for csrf token in the request body under the key _csrf 
+app.use(csrfProtection);
+
 {
   //? adding a new middleware func. to add user to the req object so that we can use it from anywhere in our app
   //? NOTE: - app.use will only execute for incoming requests.It will not execture before sequelize.sync() as npm start runs
@@ -71,6 +81,15 @@ app.use((req, res, next) => {
     });
 });
 
+//? Adding middleware to add csrfToken and isAuthenticated session token to the res.locals object
+app.use((req,res,next)=>{
+  //? res.locals is a JS object which is available to all the views which are rendered by express.
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+})
+
+
 app.use("/admin", adminData.routes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -80,18 +99,6 @@ app.use(authRoutes);
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "ritik",
-          email: "ritikpr307@gmail.com",
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
     app.listen(3000, () => console.log("Server running"));
   })
   .catch((err) => {
