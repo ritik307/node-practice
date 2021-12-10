@@ -225,6 +225,21 @@ form {
   color: white;
 }
 
+.user-message{
+  margin: auto;
+  width: 90%;
+  border: 1px solid rgb(18, 33, 238);
+  background: #213cda73;
+  padding: 0.5rem;
+  border-radius: 3px;
+  color: white;
+  text-align: center;
+}
+.user-message--error{
+  border: 1px solid rgb(201, 19, 19);
+  background: #ff363673;
+  color: red;
+}
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
@@ -232,5 +247,9 @@ form {
 
   #side-menu-toggle {
     display: none;
+  }
+
+  .user-message{
+    width: 30rem;
   }
 }

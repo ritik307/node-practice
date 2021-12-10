@@ -12,6 +12,8 @@ const MongoDBStore = require("connect-mongodb-session")(session); //? package to
 
 const csrf=require("csurf"); //? package to handle csrf(Cross-Site Request Forgery)
 
+const flash =require("connect-flash"); //? The flash is a special area of the session used for storing messages. Messages are written to the flash and cleared after being displayed to the user.
+
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
@@ -60,6 +62,9 @@ app.use(
 //? ALWAYING USE CSRF POTECTION MIDDLEWARE AFTER INITIALIZING SESSION
 //? for any NON-GET request this package will look for csrf token in the request body under the key _csrf 
 app.use(csrfProtection);
+
+//? ALWAYS USE connect-flash AFTER INITIALIZING SESSION
+app.use(flash());
 
 {
   //? adding a new middleware func. to add user to the req object so that we can use it from anywhere in our app

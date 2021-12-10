@@ -106,7 +106,7 @@ exports.postOrder = (req, res, next) => {
       console.log(products);
       const order = new Order({
         user: {
-          name: req.user.name,
+          email: req.user.email,
           userId: req.user, //? mongoose will automatically fetch the id
         },
         products: products,
