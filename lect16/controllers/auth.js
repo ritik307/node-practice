@@ -1,3 +1,4 @@
+require('dotenv').config();
 const bcrypt = require("bcryptjs"); //? used to hash password before saving it in the database
 const nodemailer = require("nodemailer"); //? makes sending emails from inside nodejs easy
 const sendgridTransport = require("nodemailer-sendgrid-transport"); //? helps integrating sendgrid and convinently use that together with nodemailer
@@ -7,10 +8,10 @@ const User = require("../models/user");
 //? transporter is a setup telling nodemailer how the emails will be delivered bcz nodejs wont do this on its own we need 3rd party service for that
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth:{
-    api_key:"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"
+    api_key:process.env.SENDGRID_API_KEY
   }
 }));
-
+// console.log("key: "+process.env.SENDGRID_API_KEY);
 exports.getLogin = (req, res, next) => {
   //? to print the cookies
   // const isLoggedIn=req.get("Cookie").split(";")[4].trim().split('=')[1];
