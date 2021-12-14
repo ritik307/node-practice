@@ -1,4 +1,6 @@
 const Product = require("../models/product");
+const { validationResult } = require("express-validator");
+
 
 exports.getAddProduct = (req, res, next) => {
   console.log("--------getAddProuct------");
@@ -6,15 +8,39 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     editing: false,
+    hasError: false,
+    validationErrors: [],
     // isAuthenticated: req.session.isLoggedIn,
   });
 }; 
 
 exports.postAddProduct = (req, res, next) => {
+
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
+  
+
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    console.log("VALIDATION ERRORS WHILE ADDING PRODUCT");
+    console.log(errors.array());
+    return res.status(422).render("admin/edit-product",{
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product:{
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+      validationErrors: errors.array()
+    });
+  }
   const product = new Product({
     title: title,
     price: price,
@@ -23,7 +49,6 @@ exports.postAddProduct = (req, res, next) => {
     imageUrl: imageUrl,
     userId: req.user,
   });
-
   product.save()
     .then((result)=>{
       console.log("PRODUCT CREATED SUCCESSFULLY");
@@ -50,7 +75,9 @@ exports.getEditProduct = (req, res, next) => {
         path: '/admin/edit-product',
         editing: editMode,
         product: product,
+        hasError: false,
         // isAuthenticated: req.session.isLoggedIn,
+        validationErrors: []
       });
     })
     .catch((err)=>{
@@ -60,12 +87,35 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
+  
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
   
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    console.log("VALIDATION ERRORS WHILE ADDING PRODUCT");
+    return res.status(422).render("admin/edit-product",{
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: true,
+      product: {
+        title: updatedTitle,
+        imageUrl: updatedImageUrl,
+        price: updatedPrice,
+        description: updatedDescription,
+        _id: prodId
+      },
+      hasError: true,
+      validationErrors: errors.array()
+    })
+  }
+
+
+
   Product.findById(prodId)
     .then((product)=>{
       if(product.userId.toString() !== req.user._id.toString()){

@@ -121,15 +121,25 @@ exports.postLogin = (req, res, next) => {
           res.redirect("/");
         });
       }
-      req.flash("error", "Invalid email or password");
-      res.redirect("/login");
+      return res.status(422).render('auth/login', {
+        path: '/login',
+        pageTitle: 'Login',
+        errorMessage: 'Invalid email or password.',
+        oldInput: {
+          email: email,
+          password: password
+        },
+        validationErrors: []
+      });
+    })
+    .catch((err)=>{
+      console.log("ERROR WHILE LOGGING THE USER");
+      res.redirect('/login');
     });
-  });
-  User.findById("61a77038026b637f2ec12aab")
-    .then((user) => {})
-    .catch((err) => {
-      console.log("ERROR WHILE FINDING THE USER");
-    });
+  })
+  .catch((err)=>{
+    console.log("ERROR WHILE FETCHING THE USER");
+  })
 };
 
 exports.postSignup = (req, res, next) => {
