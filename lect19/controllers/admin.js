@@ -58,6 +58,11 @@ exports.postAddProduct = (req, res, next) => {
     })
     .catch((err)=>{
       console.log("ERROR WHILE SAVING PRODUCT");
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      //? when we pass error to next() then we tell express that an error occured and express will skip all
+      //? other middlewares and go directly to the error handling middleware
+      return next(error); 
     })
 };
 
@@ -85,6 +90,11 @@ exports.getEditProduct = (req, res, next) => {
     })
     .catch((err)=>{
       console.log("ERROR WHILE EDITING THE PRODUCT");
+      const error = new Error(err);
+      error.httpStatusCode = 500; //? to access the status code of the error in the middleware
+      //? when we pass error to next() then we tell express that an error occured and express will skip all
+      //? other middlewares and go directly to the error handling middleware
+      return next(error);
     });
 
 };
@@ -138,6 +148,11 @@ exports.postEditProduct = (req, res, next) => {
     //? the catch() will catch the errors for both findByPk() and save()
     .catch(err=>{
       console.log("ERROR WHILE UPDATING PRODUCT");
+      const error = new Error(err);
+      error.httpStatusCode = 500; //? to access the status code of the error in the middleware
+      //? when we pass error to next() then we tell express that an error occured and express will skip all
+      //? other middlewares and go directly to the error handling middleware
+      return next(error);
     })
 };
 
@@ -167,6 +182,10 @@ exports.postDeleteProduct = (req, res, next) => {
     })
     .catch(err=>{
       console.log("ERROR WHILE DELETING PRODUCT");
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500; //? to access the status code of the error in the middleware
+      //? when we pass error to next() then we tell express that an error occured and express will skip all
+      //? other middlewares and go directly to the error handling middleware
+      return next(error);
     })
 };

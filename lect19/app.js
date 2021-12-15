@@ -66,26 +66,6 @@ app.use(csrfProtection);
 //? ALWAYS USE connect-flash AFTER INITIALIZING SESSION
 app.use(flash());
 
-{
-  //? adding a new middleware func. to add user to the req object so that we can use it from anywhere in our app
-  //? NOTE: - app.use will only execute for incoming requests.It will not execture before sequelize.sync() as npm start runs
-  //? sequalize.sync() not the incoming request.Incoming request are funnled through middleware.
-}
-app.use((req, res, next) => {
-  if (!req.session.user) {
-    return next();
-  }
-  User.findById(req.session.user._id)
-    .then((user) => {
-      //? creating a new User object from "Model" so that we can use its function in our app.
-      req.user = user;
-      next();
-    })
-    .catch((err) => {
-      console.log("ERROR WHILE FINDING THE USER");
-    });
-});
-
 //? Adding middleware to add csrfToken and isAuthenticated session token to the res.locals object
 app.use((req,res,next)=>{
   //? res.locals is a JS object which is available to all the views which are rendered by express.
@@ -94,12 +74,56 @@ app.use((req,res,next)=>{
   next();
 })
 
+{
+  //? adding a new middleware func. to add user to the req object so that we can use it from anywhere in our app
+  //? NOTE: - app.use will only execute for incoming requests.It will not execture before sequelize.sync() as npm start runs
+  //? sequalize.sync() not the incoming request.Incoming request are funnled through middleware.
+}
+app.use((req, res, next) => {
+  throw new Error("Sync error");
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
+    .then((user) => {
+      if(!user){ //? if case to handle if user is deleted from DB/ doesnt not exist so that we dont store an undef in req.user
+        return next();
+      }
+      //? creating a new User object from "Model" so that we can use its function in our app.
+      req.user = user;
+      next();
+    })
+    .catch((err) => { //? catch will NOT work if we dont find the user ,it will only work if there is some technical issue
+      console.log("ERROR WHILE FINDING THE USER");
+      next(new Error(err)); //? check bottom for more info
+    });
+});
+
+
+
 
 app.use("/admin", adminData.routes);
 app.use(shopRoutes);
 app.use(authRoutes);
+
+//? 500 stands for server error
+app.use("/500",errorController.get500);
 //? middleware to catch any route that doesnt match the above routes
-// app.use(errorController.get404);
+app.use(errorController.get404);
+
+//! NOTE:- if you got more than one error-handling middleware,they will execute from top to bottom.(JUST LIKE OTHER MIDDLEWARE)
+
+//? special middleware to handle errors
+app.use((error, req, res, next) => {
+  //? do not redirect as redirecting can again generate an error and will loop through it again and again
+  res
+    .status(500)
+    .render("500", {
+      pageTitle: "Server Issue",
+      path: "/500",
+      // isAuthenticated: req.session.isLoggedIn,
+    });
+})
 
 mongoose
   .connect(MONGODB_URI)
@@ -114,3 +138,9 @@ mongoose
 const server = http.createServer(app);
 server.listen(3000);
 */
+
+//! NOTE:- 
+//! In sync places i.e outside callbacks and promises we can throw an error (throw new Error("error")) and 
+//! express will detect it and execute next() error handling middleware
+//!--------------------------------------------------------------------------------------------------------
+//! BUT inside promises and callbacks throwing error like aboe does not work, we have to use next(new Error("error"))
