@@ -80,7 +80,7 @@ app.use((req,res,next)=>{
   //? sequalize.sync() not the incoming request.Incoming request are funnled through middleware.
 }
 app.use((req, res, next) => {
-  throw new Error("Sync error");
+  // throw new Error("Sync error");
   if (!req.session.user) {
     return next();
   }
