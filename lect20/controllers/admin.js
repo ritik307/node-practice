@@ -16,14 +16,30 @@ exports.getAddProduct = (req, res, next) => {
 }; 
 
 exports.postAddProduct = (req, res, next) => {
-
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.body.image;
   const price = req.body.price;
   const description = req.body.description;
-  
+
+  if(!image){
+    return res.status(422).render("admin/edit-product",{
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        price: price,
+        description : description
+      },
+      errorMessage: "Attached file is not an image",
+      validationError: []
+    });
+  }
 
   const errors = validationResult(req);
+
+  // console.log("ImageURL: "+imageUrl);
 
   if(!errors.isEmpty()){
     console.log("VALIDATION ERRORS WHILE ADDING PRODUCT");
@@ -43,6 +59,9 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: errors.array()
     });
   }
+
+  const imageUrl = image.path;
+
   const product = new Product({
     title: title,
     price: price,
@@ -139,7 +158,9 @@ exports.postEditProduct = (req, res, next) => {
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
-      product.imageUrl = updatedImageUrl;
+      if(image){
+        product.imageUrl = image.path;
+      }
       return product.save().then(result=>{
           console.log("PRODUCT UPDATED SUCCESSFULLY");
           res.redirect("/admin/products");
@@ -171,6 +192,9 @@ exports.getProducts = (req, res, next) => {
     })
     .catch((err)=>{
       console.log("ERROR WHILE FETCHING PRODUCTS");
+      const error = new Error(err);
+      error.httpStatusCode = 500; //? to access the status code of the error in the middleware
+      return next(error);
     })
 };
 exports.postDeleteProduct = (req, res, next) => {

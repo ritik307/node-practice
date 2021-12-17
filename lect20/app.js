@@ -1,4 +1,4 @@
-//! LECTURE 17
+//! LECTURE 20
 
 const path = require("path");
 
@@ -14,6 +14,8 @@ const csrf=require("csurf"); //? package to handle csrf(Cross-Site Request Forge
 
 const flash =require("connect-flash"); //? The flash is a special area of the session used for storing messages. Messages are written to the flash and cleared after being displayed to the user.
 
+const multer = require("multer"); //? package to handle file uploads
+
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
@@ -28,6 +30,29 @@ const store = new MongoDBStore({
 //? Initialising csrfProtection middleware
 const csrfProtection = csrf();
 
+
+const fileStorage = multer.diskStorage({
+  destination: (req,file,cb)=>{
+    cb(null,"images");
+  },
+  filename: (req,file,cb)=>{
+    cb(null,new Date().toISOString()+"-"+ file.originalname);
+  }
+});
+
+const fileFilter = (req,file,cb)=>{
+  if(
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ){
+    cb(null, true);
+  }
+  else{
+    cb(null,false);
+  }
+}
+
 //? registering VIEW ENGINE
 //? "view engine" is a reserved configuration key understood by expressjs
 app.set("view engine", "ejs"); //? what view engine should express be using eg(pugs,handlebars).
@@ -39,8 +64,15 @@ const authRoutes = require("./routes/auth");
 
 //? use("/path",(req,res,next)=>{}) - allow us to add a new middleware func.
 //? next()- is a funcn passed by expressJS to travel to another middleware
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false })); //? urlencoded data is basically text data NO FILE just text data. bodyParser does not have any encoding for file.
+
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
+
 app.use(express.static(path.join(__dirname, "public"))); //? for static imports(ONLY FOR READING PURPOSE) like css from a folder i.e. public(could name anything)
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 {
   //? we execute sessionas a func. in which we pass a JS object to configure session
   //?  secret- is a random string used to signing the hash which secretely stores out id in cookie[at client side]
@@ -80,7 +112,6 @@ app.use((req,res,next)=>{
   //? sequalize.sync() not the incoming request.Incoming request are funnled through middleware.
 }
 app.use((req, res, next) => {
-  throw new Error("Sync error");
   if (!req.session.user) {
     return next();
   }
@@ -115,13 +146,14 @@ app.use(errorController.get404);
 
 //? special middleware to handle errors
 app.use((error, req, res, next) => {
+  console.log("500 error window");
   //? do not redirect as redirecting can again generate an error and will loop through it again and again
   res
     .status(500)
     .render("500", {
       pageTitle: "Server Issue",
       path: "/500",
-      // isAuthenticated: req.session.isLoggedIn,
+      isAuthenticated: req.session.isLoggedIn,
     });
 })
 
@@ -144,3 +176,4 @@ server.listen(3000);
 //! express will detect it and execute next() error handling middleware
 //!--------------------------------------------------------------------------------------------------------
 //! BUT inside promises and callbacks throwing error like aboe does not work, we have to use next(new Error("error"))
+
