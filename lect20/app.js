@@ -147,6 +147,9 @@ app.use(errorController.get404);
 //? special middleware to handle errors
 app.use((error, req, res, next) => {
   console.log("500 error window");
+  console.log(error);
+  console.log("------------------");
+  console.log(req.session);
   //? do not redirect as redirecting can again generate an error and will loop through it again and again
   res
     .status(500)

@@ -16,6 +16,7 @@ exports.getAddProduct = (req, res, next) => {
 }; 
 
 exports.postAddProduct = (req, res, next) => {
+  console.log("--------postAddProduct------");
   const title = req.body.title;
   const image = req.body.image;
   const price = req.body.price;
@@ -33,7 +34,7 @@ exports.postAddProduct = (req, res, next) => {
         description : description
       },
       errorMessage: "Attached file is not an image",
-      validationError: []
+      validationErrors: []
     });
   }
 
@@ -119,7 +120,7 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
-  
+  console.log("--------postEditProduct------");
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;

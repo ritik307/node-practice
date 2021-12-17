@@ -25,9 +25,6 @@ router.post(
             .isString()
             .isLength({ min: 2 })
             .trim(),
-        body("imageUrl","Enter valid image url")
-            .isURL()
-            .trim(),
         body("price","Price must be a number")
             .isNumeric(),
         body("description", "Description is required and must be at least 5 to 400 characters long")
@@ -45,9 +42,6 @@ router.post(
         body("title","Title must be at least 2 characters long and alphanumeric")
             .isString()
             .isLength({ min: 2 })
-            .trim(),
-        body("imageUrl","Please enter a valid URL")
-            .isURL()
             .trim(),
         body("price","Please enter a valid price")
             .isNumeric(),
