@@ -4,6 +4,7 @@ const express=require("express");
 
 const rootDir=require("../util/path");
 const adminData= require("./admin");
+const { appendFile } = require("fs");
 
 const router = express.Router();
 
@@ -20,3 +21,17 @@ router.get('/',(req,res,next)=>{
 });
 
 module.exports=router;
+
+
+
+
+------------------------------------
+ user={
+     name:"",
+     age:"",
+     rollno:"",
+ }
+
+app.get("/",(req,res,next)=>{
+    res.render("/home");
+})

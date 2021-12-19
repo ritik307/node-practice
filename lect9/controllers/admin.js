@@ -1,4 +1,6 @@
 const Product = require("../models/product");
+
+
 exports.getAddProduct = (req, res, next) => {
   console.log("--------getAddProuct------");
   res.render("admin/edit-product", {
