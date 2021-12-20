@@ -1,4 +1,7 @@
 const Product = require("../models/product");
+
+const fileHelper = require("../util/file");
+
 const { validationResult } = require("express-validator");
 
 
@@ -160,6 +163,8 @@ exports.postEditProduct = (req, res, next) => {
       product.price = updatedPrice;
       product.description = updatedDesc;
       if(image){
+        //? deleting the old image
+        fileHelper.deleteFile(product.imageUrl);
         product.imageUrl = image.path;
       }
       return product.save().then(result=>{
@@ -200,17 +205,23 @@ exports.getProducts = (req, res, next) => {
 };
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteOne({_id: prodId, userId: req.user._id})
-    .then(result=>{
-      console.log("PRODUCT DESTROYED SUCCESSFULLY");
-      res.redirect("/admin/products");
-    })
-    .catch(err=>{
-      console.log("ERROR WHILE DELETING PRODUCT");
-      const error = new Error(err);
-      error.httpStatusCode = 500; //? to access the status code of the error in the middleware
-      //? when we pass error to next() then we tell express that an error occured and express will skip all
-      //? other middlewares and go directly to the error handling middleware
-      return next(error);
-    })
+  Product.findById(prodId).then(product=>{
+    if(!product){
+      return next(new Error("Product not found"));
+    }
+    fileHelper.deleteFile(product.imageUrl);
+    return Product.deleteOne({_id: prodId, userId: req.user._id})
+  })
+  .then(result=>{
+    console.log("PRODUCT DESTROYED SUCCESSFULLY");
+    res.redirect("/admin/products");
+  })
+  .catch(err=>{
+    console.log("ERROR WHILE DELETING PRODUCT");
+    const error = new Error(err);
+    error.httpStatusCode = 500; //? to access the status code of the error in the middleware
+    //? when we pass error to next() then we tell express that an error occured and express will skip all
+    //? other middlewares and go directly to the error handling middleware
+    return next(error);
+  })
 };

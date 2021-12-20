@@ -11,3 +11,5 @@ const pool = mysql.createPool({
 //? allows us to use promises when working with these conenctions which handles async tasks instead of callbacks
 //? bcz promises allows us to write code in a bit more structured way. NO NESTED CALLBACKS(callback hell)
 module.exports=pool.promise();
+
+

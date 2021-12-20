@@ -9,6 +9,7 @@ const p = path.join(
 );
 
 module.exports = class Cart{
+    
     static addProduct(id,productPrice){
         //? fetch the previos cart items from file
         fs.readFile(p,(err,fileContent)=>{

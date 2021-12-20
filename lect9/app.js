@@ -14,7 +14,7 @@ const app=express();
 //? registering VIEW ENGINE 
 //? "view engine" is a reserved configuration key understood by expressjs
 app.set("view engine","ejs"); //? what view engine should express be using eg(pugs,handlebars).
-app.set("views","views"); //? in which folser should express look for views.
+app.set("views","views"); //? in which folder should express look for views.
 
 const adminData=require("./routes/admin");
 const shopRoutes=require("./routes/shop");
