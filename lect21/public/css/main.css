@@ -43,7 +43,7 @@ form {
 .main-header__nav {
   height: 100%;
   width: 100%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-between;
 }
@@ -109,16 +109,23 @@ form {
   padding: 0;
 }
 
-.mobile-nav__item a {
+.mobile-nav__item a,
+.mobile-nav__item button {
+  font: inherit;
   text-decoration: none;
   color: black;
   font-size: 1.5rem;
   padding: 0.5rem 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .mobile-nav__item a:active,
 .mobile-nav__item a:hover,
-.mobile-nav__item a.active {
+.mobile-nav__item a.active,
+.mobile-nav__item button:hover,
+.mobile-nav__item button:active {
   background: #00695c;
   color: white;
   border-radius: 3px;
@@ -180,10 +187,13 @@ form {
 
 .card__image {
   width: 100%;
+  height: 10rem;
+  text-align: center;
 }
 
 .card__image img {
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .card__actions {
@@ -225,21 +235,42 @@ form {
   color: white;
 }
 
-.user-message{
+.user-message {
   margin: auto;
   width: 90%;
-  border: 1px solid rgb(18, 33, 238);
-  background: #213cda73;
+  border: 1px solid #4771fa;
   padding: 0.5rem;
   border-radius: 3px;
-  color: white;
+  background: #b9c9ff;
   text-align: center;
 }
-.user-message--error{
-  border: 1px solid rgb(201, 19, 19);
-  background: #ff363673;
+
+.user-message--error {
+  border-color: red;
+  background: rgb(255, 176, 176);
   color: red;
 }
+
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination a {
+  text-decoration: none;
+  color: #00695c;
+  padding: 0.5rem;
+  border: 1px solid #00695c;
+  margin: 0 1rem;
+}
+
+.pagination a:hover,
+.pagination a:active,
+.pagination a.active {
+  background: #00695c;
+  color: white;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
@@ -249,7 +280,7 @@ form {
     display: none;
   }
 
-  .user-message{
+  .user-message {
     width: 30rem;
   }
 }

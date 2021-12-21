@@ -5,14 +5,61 @@ const pdfDocument = require("pdfkit");
 const Product = require("../models/product");
 const Order = require("../models/order");
 
+const ITEMS_PER_PAGE = 3; //? shows the number of items to show on a single page
+
 exports.getProducts = (req, res, next) => {
   console.log("----------fetching data----------");
+  const page = +req.query.page || 1; //? + to convert string to number
+  let totalItems;
   Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems=numProducts;
+      return Product.find()
+        .skip((page-1)*ITEMS_PER_PAGE) //? skip is used to skip the number of items specified
+        .limit(ITEMS_PER_PAGE) //? limit is used to limit the number of items to be shown
+    })
     .then((products) => {
       res.render("shop/product-list", {
         prods: products,
-        pageTitle: "All Products",
+        pageTitle: "Products",
         path: "/products",
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+        // isAuthenticated: req.session.isLoggedIn,
+      });
+    })
+    .catch((err) => {
+      console.log("ERROR WHILE FINDING ALL PRODUCTS");
+    });
+};
+
+exports.getIndex = (req, res, next) => {
+  const page = +req.query.page || 1; //? + to convert string to number
+  let totalItems;
+  Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems=numProducts;
+      return Product.find()
+        .skip((page-1)*ITEMS_PER_PAGE) //? skip is used to skip the number of items specified
+        .limit(ITEMS_PER_PAGE) //? limit is used to limit the number of items to be shown
+    })
+    .then((products) => {
+      res.render("shop/index", {
+        prods: products,
+        pageTitle: "Shop",
+        path: "/",
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
         // isAuthenticated: req.session.isLoggedIn,
       });
     })
@@ -38,12 +85,27 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
+  const page = +req.query.page || 1; //? + to convert string to number
+  let totalItems;
   Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems=numProducts;
+      return Product.find()
+        .skip((page-1)*ITEMS_PER_PAGE) //? skip is used to skip the number of items specified
+        .limit(ITEMS_PER_PAGE) //? limit is used to limit the number of items to be shown
+    })
     .then((products) => {
       res.render("shop/index", {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
         // isAuthenticated: req.session.isLoggedIn,
       });
     })
