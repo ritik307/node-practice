@@ -52,7 +52,8 @@ router.post(
     isAuth, 
     adminController.postEditProduct
 );
-
-router.post("/delete-product",isAuth,adminController.postDeleteProduct);
+//? when we send req. through browser it only knows GET and POST request
+//? but when we send req through browser-side JS we have access to other http-verbs(PUT,DELETE) too.
+router.delete("/product/:productId",isAuth,adminController.deleteProduct);
 // module.exports=router;
 exports.routes=router;

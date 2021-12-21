@@ -203,8 +203,9 @@ exports.getProducts = (req, res, next) => {
       return next(error);
     })
 };
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+exports.deleteProduct = (req, res, next) => {
+  //? delete req are not allowed to have body so we have to use params
+  const prodId = req.params.productId;
   Product.findById(prodId).then(product=>{
     if(!product){
       return next(new Error("Product not found"));
@@ -214,14 +215,18 @@ exports.postDeleteProduct = (req, res, next) => {
   })
   .then(result=>{
     console.log("PRODUCT DESTROYED SUCCESSFULLY");
-    res.redirect("/admin/products");
+    // res.redirect("/admin/products");
+    //? we are not using res.redirect() bcz we dont want to re-send the HTML page we want to update the same page
+    res.status(200).json({message: "Success"});
   })
   .catch(err=>{
     console.log("ERROR WHILE DELETING PRODUCT");
-    const error = new Error(err);
-    error.httpStatusCode = 500; //? to access the status code of the error in the middleware
-    //? when we pass error to next() then we tell express that an error occured and express will skip all
-    //? other middlewares and go directly to the error handling middleware
-    return next(error);
+    // const error = new Error(err);
+    // error.httpStatusCode = 500; //? to access the status code of the error in the middleware
+    // //? when we pass error to next() then we tell express that an error occured and express will skip all
+    // //? other middlewares and go directly to the error handling middleware
+    // return next(error);
+
+    res.status(500).json({message: "Deleting product failed"});
   })
 };
