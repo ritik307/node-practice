@@ -34,7 +34,7 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public"))); //? for static imports(ONLY FOR READING PURPOSE) like css from a folder i.e. public(could name anything)
 {
-  //? we execute sessionas a func. in which we pass a JS object to configure session
+  //? we execute session as a func. in which we pass a JS object to configure session
   //?  secret- is a random string used to signing the hash which secretely stores out id in cookie[at client side]
   //? resave- if true, session will be saved even if there is no change in session data [set to false to improve performance]
   //? saveUninitialized- if true, session will be saved even if there is no change in session data [set to false to improve performance]
