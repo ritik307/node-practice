@@ -63,14 +63,12 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: errors.array()
     });
   }
-
   const imageUrl = image.path;
 
   const product = new Product({
     title: title,
     price: price,
     description: description,
-    imageUrl: imageUrl,
     imageUrl: imageUrl,
     userId: req.user,
   });
@@ -87,7 +85,7 @@ exports.postAddProduct = (req, res, next) => {
       //? other middlewares and go directly to the error handling middleware
       return next(error); 
     })
-};
+}; 
 
 exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
@@ -208,7 +206,7 @@ exports.postDeleteProduct = (req, res, next) => {
   Product.findById(prodId).then(product=>{
     if(!product){
       return next(new Error("Product not found"));
-    }
+    }  
     fileHelper.deleteFile(product.imageUrl);
     return Product.deleteOne({_id: prodId, userId: req.user._id})
   })

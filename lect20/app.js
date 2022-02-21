@@ -71,7 +71,7 @@ app.use(
 );
 
 app.use(express.static(path.join(__dirname, "public"))); //? for static imports(ONLY FOR READING PURPOSE) like css from a folder i.e. public(could name anything)
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images', express.static(path.join(__dirname, 'images'))); 
 
 {
   //? we execute sessionas a func. in which we pass a JS object to configure session
@@ -129,8 +129,6 @@ app.use((req, res, next) => {
       next(new Error(err)); //? check bottom for more info
     });
 });
-
-
 
 
 app.use("/admin", adminData.routes);
